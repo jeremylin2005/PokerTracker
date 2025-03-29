@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  <!-- ✅ MODIFIED: Enhanced viewport settings for mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
   <title>Poker Assistant</title>
   <link rel="stylesheet" href="style.css" />
 </head> 
 <body>
   <div id="tracker">
     <div id="controls">
-      <button onclick = "changeBlinds()">Change Blinds</button>
-      <button onclick = "startRound()">Start Round</button>
-      <button onclick = "startBets()">Start Bets</button>
-      <button onclick = "add()">Add Player</button>
-      <button onclick = "getWinner()">Winner</button>
+      <button onclick="changeBlinds()">Change Blinds</button>
+      <button onclick="startRound()">Start Round</button>
+      <button onclick="startBets()">Start Bets</button>
+      <button onclick="add()">Add Player</button>
+      <button onclick="getWinner()">Winner</button>
     </div>
     <div id="pot">Pot: $0</div>
   </div>

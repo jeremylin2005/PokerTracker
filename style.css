@@ -35,6 +35,14 @@ body {
   border-color: gold;
 }
 
+.profile-pic{
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  border: 2px solid #4caf50;
+  margin-top: 10px;
+}
+
 .smallBlind{
   border-color: silver;
 }
@@ -67,5 +75,6 @@ body {
   border: none;
   border-radius: 8px;
 }
-  
+
+
   

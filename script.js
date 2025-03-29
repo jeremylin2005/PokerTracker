@@ -1,15 +1,18 @@
-let sbIndex = 1;
-let bbIndex= 0;
+let sbIndex = -1;
+let bbIndex= -1;
 let pot = 0;
-let playerArr = []
+let playerArr = [];
+let handArr = [];
 let started = false;
 let bet = false;
 let bettingRound = 1;
+let sb = 5;
+let bb = 10;
 const tracker = document.getElementById("tracker");
 const controls = document.getElementById("controls");
 
-//add();
-//add();
+add();
+add();
 
 function startRound() {
   if(playerArr.length < 2) {
@@ -35,8 +38,8 @@ function startBets(){
   getBets();
   bet = true;
   resetBets();
-  if(checkAllIn()){
-    bettingRound = 4;
+  if(checkAllIn() || checkAllFold()){
+    bettingRound = 5;
   } else {
     bettingRound++;
   }
@@ -74,60 +77,109 @@ function add(){
 
   const newDiv = document.createElement("div");
   newDiv.classList.add("player");
+
+  const img = document.createElement("img");
+  img.src = "default.jpg";
+  img.alt = `${username}'s profile picture`;
+  img.className = "profile-pic";
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.capture = "user"; 
+  input.style.display = "none";
+
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      img.src = event.target.result;
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  img.onclick = () => input.click();
+
   newDiv.innerHTML = `${username}<br>Chip Stack: $<span class = "stack">1000</span><br><span class = "blindType"></span>`;
+  newDiv.appendChild(img);
+  newDiv.appendChild(input);
 
   tracker.insertBefore(newDiv, controls);
-  playerArr.push({username: username, stack: 1000, bet: -1, element: newDiv});
+  playerArr.push({username: username, stack: 1000, bet: 0, fold: false, allIn: false, element: newDiv});
 }
 
 function blindUpdate(){
-  playerArr[bbIndex].element.classList.remove("blind");
-  playerArr[sbIndex].element.classList.remove("smallBlind");
-  bbIndex = (bbIndex + 1) % playerArr.length;
-  sbIndex = (sbIndex + 1) % playerArr.length;
+  if(bbIndex == -1 && sbIndex == -1){
+    bbIndex = 1;
+    sbIndex = 0
+  } else {
+    playerArr[bbIndex].element.classList.remove("blind");
+    playerArr[sbIndex].element.classList.remove("smallBlind");
+    bbIndex = (bbIndex + 1) % playerArr.length;
+    sbIndex = (sbIndex + 1) % playerArr.length;
+  }
 
   playerArr[bbIndex].element.classList.add("blind");
   playerArr[bbIndex].element.querySelector(".blindType").textContent = "BB";
-  playerArr[bbIndex].stack -= 10;
+  playerArr[bbIndex].stack -= bb;
   playerArr[bbIndex].element.querySelector(".stack").textContent = `Chip Stack: $${playerArr[bbIndex].stack}`;
 
   playerArr[sbIndex].element.classList.add("smallBlind");
   playerArr[sbIndex].element.querySelector(".blindType").textContent = "SB";
-  playerArr[sbIndex].stack -= 5;
+  playerArr[sbIndex].stack -= sb;
   playerArr[sbIndex].element.querySelector(".stack").textContent = `Chip Stack: $${playerArr[sbIndex].stack}`;
 
-  updatePot(15);
+  updatePot(sb + bb);
 }
 
 function getBets(){
   let i = sbIndex;
-  let playerBet = -1;
+  let playerBet = 0;
   let currentBet = 0;
   let playerCall = 0;
+  let successfulBet = false;
   do{
-    while(playerBet == -1){
-      if(playerArr[i].bet != -1){
+    while(!successfulBet){
+      if(!playerArr[i].fold && !playerArr[i].allIn){
         playerCall = currentBet - playerArr[i].bet;
-      } else{
-        playerCall = currentBet;
-      }
-      let bet = prompt(`${playerArr[i].username} place your bets. \nCurrent Bet: $${playerCall} \nPrice To Call: $${playerCall}\nYour Stack: $${playerArr[i].stack}`);
-      if(isValidBet(bet, i, currentBet)){
-        playerBet = Number(bet);
-        currentBet = playerBet;
-        updatePot(playerBet);
-        updatePlayerStack(i, playerBet);
-      } else if(bet > playerArr[i].stack){
-        alert(`${playerArr[i].username} does not have enough chips`);
-      } else if(bet < currentBet){
-        alert("Please match the current bet");
+        let bet = prompt(`${playerArr[i].username} place your bets. \nCurrent Bet: $${playerCall} \nPrice To Call: $${playerCall}\nYour Stack: $${playerArr[i].stack}`);
+        if(bet > playerArr[i].stack){
+          alert(`${playerArr[i].username} does not have enough chips`);
+        } if(bet == -1){
+          playerArr[i].fold = true;
+          successfulBet = true;
+        } else if(isValidBet(bet, i, currentBet)){
+          playerBet = Number(bet);
+          currentBet = playerBet;
+          successfulBet = true;
+          updatePot(playerBet);
+          updatePlayerStack(i, playerBet);
+        } else if(playerBet < playerCall){
+          alert("Please match the calling price");
+        } else {
+          alert("Please enter a valid number");
+        }
       } else {
-        alert("Please enter a valid number");
+        successfulBet = true;
       }
     }
     i = (i + 1) % playerArr.length
-    playerBet = -1;
-  } while(!betsEqual() && !betsAreChecks(i));
+    playerBet = 0;
+    successfulBet = false;
+  } while(!betsEqual(i));
+}
+
+function isValidBet(bet, i, currentBet){
+  if(bet == playerArr[i].stack && bet <= (currentBet - parseInt(playerArr[i].bet))){
+    return true;
+  }
+  if(bet == -1){
+    playerArr[i].fold = true;
+    return true;
+  }
+  return (!isNaN(bet) && bet.trim !== "" && bet <= playerArr[i].stack && bet >= (currentBet - parseInt(playerArr[i].bet)));
 }
 
 function updatePot(amount = 0){
@@ -141,29 +193,20 @@ function updatePlayerStack(index, amount){
   playerArr[index].bet += amount;
   if(playerArr[index].stack === 0 && playerArr[index].bet != -1){
     alert("ALL IN!");
+    playerArr[index].allIn = true;
   }
 }
 
-function isValidBet(bet, i, currentBet){
-  if(parseInt(playerArr[i].bet) == -1){
-    return (!isNaN(bet) && bet.trim !== "" && bet <= playerArr[i].stack && bet >= currentBet);
-  }
-  return (!isNaN(bet) && bet.trim !== "" && bet <= playerArr[i].stack && bet >= currentBet + (parseInt(playerArr[i].bet) - currentBet));
-}
-
-function betsEqual(){
+function betsEqual(index){
   const initialBet = playerArr[sbIndex].bet;
-  for(let i = 1; i < playerArr.length; i++){
-    if(playerArr[i].bet != initialBet || initialBet == -1){
-      return false;
-    }
+  if(checkAllIn()){
+    return true;
   }
-  return true;
-}
-
-function betsAreChecks(index){
+  if(checkAllFold() && index == sbIndex){
+    return true;
+  }
   for(let i = 1; i < playerArr.length; i++){
-    if(playerArr[i].bet != -1 || index != sbIndex){
+    if(index != sbIndex && playerArr[i].bet == 0 || playerArr[i].bet != initialBet){
       return false;
     }
   }
@@ -172,6 +215,8 @@ function betsAreChecks(index){
 
 function resetRound(){
   resetBets();
+  resetFold();
+  resetAllIn;
   pot = 0;
   document.getElementById("pot").textContent = `Pot: $${0}`;
   bettingRound = 1;
@@ -179,16 +224,52 @@ function resetRound(){
   bet = false;
 }
 
+function changeBlinds(){
+  if(!started){
+    sb = prompt("Please enter SB amount");
+    bb = prompt("Please enter BB amount");
+  } else {
+    alert("Cant change blinds after round has started");
+  }
+  return;
+}
+
 function resetBets(){
   for(let i = 0; i < playerArr.length; i++){
-    playerArr[i].bet = -1;
+    playerArr[i].bet = 0;
+  }
+}
+
+function resetFold(){
+  for(let i = 0; i < playerArr.length; i++){
+    playerArr[i].fold = false;
+  }
+}
+
+function resetAllIn(){
+  for(let i = 0; i < playerArr.length; i++){
+    playerArr[i].allIn = false;
   }
 }
 
 function checkAllIn(){
   for(let i = 0; i < playerArr.length; i++){
-    if(playerArr[i].stack != -1) return false;
-    console.log(playerArr[i].stack);
+    if(!playerArr[i].allIn){
+      return false;
+    }
+  }
+  return true;
+}
+
+function checkAllFold(){
+  let notFold = 0;
+  for(let i = 0; i < playerArr.length; i++){
+    if(!playerArr[i].fold){
+      notFold++;
+    }
+  }
+  if(notFold > 1){
+    return false;
   }
   return true;
 }

@@ -11,9 +11,6 @@ let bb = 10;
 const tracker = document.getElementById("tracker");
 const controls = document.getElementById("controls");
 
-add();
-add();
-
 function startRound() {
   if(playerArr.length < 2) {
     alert("At least 2 players are required");
@@ -79,7 +76,7 @@ function add(){
   newDiv.classList.add("player");
 
   const img = document.createElement("img");
-  img.src = "default.jpg";
+  img.src = "default.png";
   img.alt = `${username}'s profile picture`;
   img.className = "profile-pic";
 
@@ -102,7 +99,7 @@ function add(){
 
   img.onclick = () => input.click();
 
-  newDiv.innerHTML = `${username}<br>Chip Stack: $<span class = "stack">1000</span><br><span class = "blindType"></span>`;
+  newDiv.innerHTML = `${username}<br>Chip Stack: $<span class = "stack">1000</span><span class = "blindType"></span><br>`;
   newDiv.appendChild(img);
   newDiv.appendChild(input);
 
@@ -122,14 +119,14 @@ function blindUpdate(){
   }
 
   playerArr[bbIndex].element.classList.add("blind");
-  playerArr[bbIndex].element.querySelector(".blindType").textContent = "BB";
+  playerArr[bbIndex].element.querySelector(".blindType").innerHTML = '<br><span class = "bbClass">BB</span>';
   playerArr[bbIndex].stack -= bb;
-  playerArr[bbIndex].element.querySelector(".stack").textContent = `Chip Stack: $${playerArr[bbIndex].stack}`;
+  playerArr[bbIndex].element.querySelector(".stack").textContent = `${playerArr[bbIndex].stack}`;
 
   playerArr[sbIndex].element.classList.add("smallBlind");
-  playerArr[sbIndex].element.querySelector(".blindType").textContent = "SB";
+  playerArr[sbIndex].element.querySelector(".blindType").innerHTML = '<br><span class = "sbClass">SB</span>';
   playerArr[sbIndex].stack -= sb;
-  playerArr[sbIndex].element.querySelector(".stack").textContent = `Chip Stack: $${playerArr[sbIndex].stack}`;
+  playerArr[sbIndex].element.querySelector(".stack").textContent = `${playerArr[sbIndex].stack}`;
 
   updatePot(sb + bb);
 }
@@ -198,7 +195,7 @@ function updatePlayerStack(index, amount){
 }
 
 function betsEqual(index){
-  const initialBet = playerArr[sbIndex].bet;
+  const initialBet = playerArr[0].bet;
   if(checkAllIn()){
     return true;
   }
@@ -209,6 +206,7 @@ function betsEqual(index){
     if(index != sbIndex && playerArr[i].bet == 0 || playerArr[i].bet != initialBet){
       return false;
     }
+    console.log(initialBet + " == " + playerArr[i].bet);
   }
   return true;
 }

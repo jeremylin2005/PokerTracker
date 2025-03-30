@@ -1,27 +1,68 @@
-/* ✅ ADDED: Box-sizing reset for consistent layout */
-* {
-  box-sizing: border-box;
+@font-face{
+  font-family: 'poker';
+  src :url('fonts/EBGaramond-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
-/* ✅ MODIFIED: Clean and responsive base */
 body {
-  margin: 0;              /* ✅ Removed default spacing */
-  padding: 0;
-  font-family: sans-serif;
-  background-color: #f0f0f0;
-  overflow-x: hidden;     /* ✅ Prevents horizontal scrolling on mobile */
-}
+    font-family: 'poker';
+    background-color: #343333;
+    color: white;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    }
 
-/* ✅ MODIFIED: Make tracker responsive */
 #tracker {
-  width: 100%;
-  max-width: 600px;       /* ✅ Caps layout width on large screens */
-  margin: auto;
-  padding: 10px;
+  margin-top: 50px;
+}
+  
+.player {
+  width: 30%;
+  display: inline-block;
+  margin: 20px;
+  padding: 15px;
+  border: 2px solid white;
+  color: white;
+  font-size: 20px;
+  border-radius: 10px;
+  background-color: #2c2c2c;
+  min-width: 100px;
+  font-family: 'poker';
+}
+  
+.blind {
+  border-color: gold;
+  box-shadow: 0 0 10px gold, 0 0 20px gold;
+  transition: box-shadow 0.3s ease;
 }
 
-/* ✅ ADDED: Responsive layout for buttons */
-#controls {
+.smallBlind {
+  border-color: silver;
+  box-shadow: 0 0 10px silver, 0 0 20px silver;
+  transition: box-shadow 0.3s ease;
+}
+
+.bbClass{
+  color: gold;
+}
+
+.sbClass{
+  color: silver;
+}
+
+.profile-pic{
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+ 
+#controls{
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -29,38 +70,52 @@ body {
   margin-bottom: 15px;
 }
 
-button {
-  flex: 1 1 45%;          /* ✅ Allows buttons to wrap on smaller screens */
-  padding: 10px;
-  font-size: 1em;
-}
-
-/* ✅ ADDED: Pot display styling */
 #pot {
+  font-family: 'poker';
+  font-size: 40px;
+  padding: 10px 20px;
+  background-color: #d81717;
+  color: white;
+  border: none;
   text-align: center;
-  font-weight: bold;
-  margin-top: 10px;
-  font-size: 1.2em;
+  margin-top: 50px;
 }
 
-/* ✅ ADDED: Player card style */
-.player {
-  text-align: center;
-  margin: 10px auto;
-  padding: 10px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+#controls button{
+  font-family: 'poker';
+  font-size: 20px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  flex: 1 1 45%; 
 }
 
-/* ✅ MODIFIED: Responsive and clean profile pic */
-.profile-pic {
-  width: 20vw;             /* ✅ Scales with screen width */
-  height: 20vw;
-  max-width: 80px;         /* ✅ Limit max size on larger screens */
-  max-height: 80px;
-  border-radius: 50%;
-  object-fit: cover;       /* ✅ Avoid stretching image */
-  margin-bottom: 5px;
-  cursor: pointer;         /* ✅ Optional: indicates clickability */
+#controls #winButton{
+  background-color: #343333;
+  color: gold;
+  border: 2px solid gold;
 }
+
+#controls #addButton{
+  background-color: #343333;
+  color: rgb(157, 76, 195);
+  border: 2px solid rgb(157, 76, 195);
+}
+
+#controls #startBetsButton{
+  background-color: #343333;
+  color: rgb(23, 203, 188);
+  border: 2px solid rgb(23, 203, 188);
+}
+
+#controls #startRoundButton{
+  background-color: #343333;
+  color:  #4caf50;
+  border: 2px solid  #4caf50;
+}
+
+#controls #changeBlindsButton{
+  background-color: #343333;
+  color: rgb(193, 88, 88);
+  border: 2px solid rgb(193, 88, 88);
+}
+

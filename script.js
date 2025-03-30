@@ -44,6 +44,7 @@ function startBets(){
 }
 
 function getWinner(){
+  let gotWinner = false;
   if(!started){
     alert("Round hasn't started");
     return;
@@ -51,15 +52,20 @@ function getWinner(){
     alert("There has been no bets");
     return;
   }
-  let winnerName = prompt("Enter winners name");
-  let winner = playerArr.find(player => player.username === winnerName);
-  if(winner){
-    winner.stack += pot;
-    winner.element.querySelector(".stack").textContent = `${winner.stack}`;
-    alert(`${winner.username} Wins The Pot!`);
-    resetRound();
-  } else {
-    alert("Invalid Player");
+  while(!gotWinner){
+    let winnerName = prompt("Enter winners name");
+    let winner = playerArr.find(player => player.username === winnerName);
+    if(winner && !winner.fold){
+      winner.stack += pot;
+      winner.element.querySelector(".stack").textContent = `${winner.stack}`;
+      alert(`${winner.username} Wins The Pot!`);
+      resetRound();
+      gotWinner = true;
+    } else if(winner.fold){
+      alert("This user has already folded");
+    } else {
+      alert("Invalid Player");
+    }
   }
 }
 
@@ -203,10 +209,11 @@ function betsEqual(index){
     return true;
   }
   for(let i = 1; i < playerArr.length; i++){
-    if(index != sbIndex && playerArr[i].bet == 0 || playerArr[i].bet != initialBet){
-      return false;
+    if(!playerArr[i].fold){
+      if(index != sbIndex && playerArr[i].bet == 0 || playerArr[i].bet != initialBet){
+        return false;
+      }
     }
-    console.log(initialBet + " == " + playerArr[i].bet);
   }
   return true;
 }
@@ -252,8 +259,10 @@ function resetAllIn(){
 
 function checkAllIn(){
   for(let i = 0; i < playerArr.length; i++){
-    if(!playerArr[i].allIn){
-      return false;
+    if(!playerArr[i].fold){
+      if(!playerArr[i].allIn){
+        return false;
+      }
     }
   }
   return true;

@@ -44,7 +44,6 @@ function startBets(){
 }
 
 function getWinner(){
-  let gotWinner = false;
   if(!started){
     alert("Round hasn't started");
     return;
@@ -52,21 +51,21 @@ function getWinner(){
     alert("There has been no bets");
     return;
   }
-  while(!gotWinner){
-    let winnerName = prompt("Enter winners name");
-    let winner = playerArr.find(player => player.username === winnerName);
-    if(winner && !winner.fold){
-      winner.stack += pot;
-      winner.element.querySelector(".stack").textContent = `${winner.stack}`;
-      alert(`${winner.username} Wins The Pot!`);
+    alert("Click on the winner");
+}
+
+function awardWinner(player){
+    if(!player.fold){
+      player.stack += pot;
+      player.element.querySelector(".stack").textContent = `${player.stack}`;
+      alert(`${player.username} Wins The Pot!`);
       resetRound();
       gotWinner = true;
-    } else if(winner.fold){
+    } else if(player.fold){
       alert("This user has already folded");
     } else {
       alert("Invalid Player");
     }
-  }
 }
 
 function add(){
@@ -77,7 +76,6 @@ function add(){
 
   const username = prompt("Enter player name");
   if(!username) return;
-
   const newDiv = document.createElement("div");
   newDiv.classList.add("player");
 
@@ -108,9 +106,13 @@ function add(){
   newDiv.innerHTML = `${username}<br>Chip Stack: $<span class = "stack">1000</span><span class = "blindType"></span><br>`;
   newDiv.appendChild(img);
   newDiv.appendChild(input);
+  let playerObject = {username: username, stack: 1000, bet: 0, fold: false, allIn: false, element: newDiv};
+  newDiv.addEventListener("click", () => {
+    handleUserClick(playerObject);
+  });
 
   tracker.insertBefore(newDiv, controls);
-  playerArr.push({username: username, stack: 1000, bet: 0, fold: false, allIn: false, element: newDiv});
+  playerArr.push(playerObject);
 }
 
 function blindUpdate(){
@@ -127,11 +129,13 @@ function blindUpdate(){
   playerArr[bbIndex].element.classList.add("blind");
   playerArr[bbIndex].element.querySelector(".blindType").innerHTML = '<br><span class = "bbClass">BB</span>';
   playerArr[bbIndex].stack -= bb;
+  playerArr[bbIndex].bet = bb;
   playerArr[bbIndex].element.querySelector(".stack").textContent = `${playerArr[bbIndex].stack}`;
 
   playerArr[sbIndex].element.classList.add("smallBlind");
   playerArr[sbIndex].element.querySelector(".blindType").innerHTML = '<br><span class = "sbClass">SB</span>';
   playerArr[sbIndex].stack -= sb;
+  playerArr[sbIndex].bet = sb;
   playerArr[sbIndex].element.querySelector(".stack").textContent = `${playerArr[sbIndex].stack}`;
 
   updatePot(sb + bb);
@@ -141,13 +145,16 @@ function getBets(){
   let i = sbIndex;
   let playerBet = 0;
   let currentBet = 0;
+  if(bettingRound == 1){
+    currentBet = bb;
+  }
   let playerCall = 0;
   let successfulBet = false;
   do{
     while(!successfulBet){
       if(!playerArr[i].fold && !playerArr[i].allIn){
         playerCall = currentBet - playerArr[i].bet;
-        let bet = prompt(`${playerArr[i].username} place your bets. \nCurrent Bet: $${playerCall} \nPrice To Call: $${playerCall}\nYour Stack: $${playerArr[i].stack}`);
+        let bet = prompt(`${playerArr[i].username} place your bets. \nCurrent Bet: $${currentBet} \nPrice To Call: $${playerCall}\nYour Stack: $${playerArr[i].stack}`);
         if(bet > playerArr[i].stack){
           alert(`${playerArr[i].username} does not have enough chips`);
         } if(bet == -1){
@@ -155,7 +162,9 @@ function getBets(){
           successfulBet = true;
         } else if(isValidBet(bet, i, currentBet)){
           playerBet = Number(bet);
-          currentBet = playerBet;
+          if(playerBet > currentBet){
+            currentBet = playerBet;
+          }
           successfulBet = true;
           updatePot(playerBet);
           updatePlayerStack(i, playerBet);
@@ -205,7 +214,7 @@ function betsEqual(index){
   if(checkAllIn()){
     return true;
   }
-  if(checkAllFold() && index == sbIndex){
+  if(checkAllFold()){
     return true;
   }
   for(let i = 1; i < playerArr.length; i++){
@@ -235,6 +244,13 @@ function changeBlinds(){
     bb = prompt("Please enter BB amount");
   } else {
     alert("Cant change blinds after round has started");
+  }
+  return;
+}
+
+function handleUserClick(username){
+  if(bettingRound > 4){
+    awardWinner(username);
   }
   return;
 }

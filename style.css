@@ -16,7 +16,7 @@ body {
     min-height: 100vh;
     height: auto;
     overflow-x: hidden;
-    }
+}
 
 #tracker {
   margin-top: 50px;
@@ -78,9 +78,10 @@ body {
   font-family: 'poker';
   font-size: 40px;
   padding: 10px 20px;
-  background-color: #d81717;
-  color: white;
-  border: none;
+  background-color: #343333;
+  color: gold;
+  border: 2px solid gold;
+  border-radius: 10px;
   text-align: center;
   margin-top: 50px;
 }

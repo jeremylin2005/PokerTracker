@@ -220,6 +220,7 @@ function betsEqual(index){
   for(let i = 1; i < playerArr.length; i++){
     if(!playerArr[i].fold){
       if(index != sbIndex && playerArr[i].bet == 0 || playerArr[i].bet != initialBet){
+        console.log("NOT EQUAL");
         return false;
       }
     }
